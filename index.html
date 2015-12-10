@@ -1,0 +1,367 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <title>Emergency Services App</title>
+    <link rel="stylesheet" href="themes/blue/style.css">
+    <link rel="stylesheet" type="text/css" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css">
+    <link rel="stylesheet" href="http://code.jquery.com/ui/1.11.4/themes/smoothness/jquery-ui.css">
+    <link rel="stylesheet" href="style.css">
+    
+    <script src="http://code.jquery.com/jquery-latest.js" type="text/javascript"></script>
+    <script src="jquery.tablesorter.min.js" type="text/javascript"></script>
+    <script src="http://code.jquery.com/ui/1.11.4/jquery-ui.js"></script>
+    <script type="text/javascript" src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js"></script>
+    <script src="http://ajax.googleapis.com/ajax/libs/angularjs/1.4.5/angular.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/ng-table/0.8.3/ng-table.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/ng-table/0.8.3/ng-table.min.js"></script>
+    
+    
+   
+    
+    <script src="app.js"></script>
+    <script src="xml2json.min.js"></script>
+
+<script type="text/javascript">
+    //JS library 
+    //https://code.google.com/p/x2js/wiki/BasicUsage
+    
+    //$(document).ready(function(){
+    //body.onload waits for loading the dom and resources
+    //.ready only waits for DOM to load
+    var url = "http://people.rit.edu/dmgics/754/23/proxy.php";
+    $(function(){
+      //  getOrgTypes();
+    //    getCities("NY");
+    });
+    
+    function getCities(state){
+        state = state || "NY";
+        
+        $.ajax({
+            type:"GET", //default
+            async:true, //default
+            cache:false, //default
+            url:url,
+            data:{path:"/Cities?state="+state},
+            dataType:"xml", //defaults to content-type of response
+            success:function (data,status){
+              //  console.log(data);
+                
+                var opts = "";
+                if($(data).find("error").length != 0){
+                //what to do
+                    console.error("Ajax error!");
+                }else if( $(data).find("row").length === 0){
+                    $("#orgCitySearch").html("There are no cities in "+state);
+                }else{
+                    opts += "<select class='form-control' id='town' name='town'>";
+                    opts += "<option value=''>All Cities</option>"
+                    $("row",data).each( function(){
+                        opts+= "<option value='"+$(this).find("city").text()+"'>"+$(this).find("city").text()+"</option>";
+                    });
+                    
+                    opts += "</select>";
+                    $("#orgCitySearch").html(opts);
+                }
+            } 
+        });
+    }
+    
+    function getOrgTypes(callback){
+             
+        $.ajax({
+            type:"GET", //default
+            async:true, //default
+            cache:false,
+            url:url,
+            data:{path:"/OrgTypes"},
+            dataType:"xml", //defaults to content-type of response
+            success:function (data,status){
+                console.log(data);
+                
+                var opts = "";
+                if($(data).find("error").length != 0){
+                //what to do
+                    console.error("Ajax error!");
+                }else{
+                    opts += "<option value=''>All Organization Types</option>"
+                    $("row",data).each( function(){
+                        opts+= "<option value='"+$(this).find("type").text()+"'>"+$(this).find("type").text()+"</option>";
+                    });
+                    
+                    $("#orgType").html(opts);
+                }
+            }
+            
+        });
+    }
+    
+    function showResults(){
+      $.ajax({
+            type:"GET", //default
+            async:true, //default
+            cache:false,
+            url:url,
+            data:{path:"/Organizations?"+$("#searchForm").serialize()},
+            dataType:"xml", //defaults to content-type of response
+            success:function (data,status){
+                
+                var x = "";
+                if($(data).find("error").length != 0){
+                //what to do
+                    console.error("Ajax error!");
+                }else{
+                  
+                    x = "<table id='resultTable' class='tablesorter'>";
+                    x+= "<thead>";
+                    x+= "<tr>";
+                    x+= "<th>ID</th>";
+                    x+= "<th>Type</th>";
+                    x+= "<th>Name</th>";
+                    x+= "<th>City</th>";
+                    x+= "<th>County</th>";
+                    x+= "<th>State</th>";
+                    x+= "<th>Zip</th>";
+                    x+= "</tr>";
+                    x+= "</thead>";
+                    x+= "<tbody>";
+                    
+                    $("row",data).each( function(){
+                        x+= "<tr>";
+                        x+= "<td>"+ $("OrganizationID",      this).text() +"</td>";
+                        x+= "<td>"+ $("type",      this).text() +"</td>";
+                        x+= "<td>"+ $("Name",      this).text() +"</td>";
+                        x+= "<td>"+ $("city",      this).text() +"</td>";
+                        x+= "<td>"+ $("CountyName",this).text() +"</td>";
+                        x+= "<td>"+ $("State",     this).text() +"</td>";
+                        x+= "<td>"+ $("Zip",       this).text() +"</td>";
+                        x+= "</tr>";
+
+                    });
+                    
+                    x+= "</tbody>";
+                    x+= "</table>";
+                    
+                    $("#tableOutput").html(x);
+                    $("#resultTable").tablesorter();
+                }
+            }
+            
+        });
+    
+    }
+      
+    function getTabs(id){
+        $.ajax({
+            type:"GET", //default
+            async:true, //default
+            cache:false,
+            url:url,
+            data:{path:"/Application/Tabs?orgId="+id},
+            dataType:"xml", //defaults to content-type of response
+            success:function (data,status){
+                if($(data).find("error").length != 0){
+                //what to do
+                 console.error("Ajax error!");
+                }else{
+                    var tabsDiv = $("#tabs");
+                    var ulEle = document.createElement("ul");
+                    var count = 0;
+                    //var arr = new Array();
+                    
+                    $("row",data).each( function(){
+                        var liEle = document.createElement("li");
+                        liEle.setAttribute("id",$("Tab",this).text());
+                        var aEle = document.createElement("a");
+                       aEle.setAttribute("href","#fragment-"+ count++);
+                      
+                        var spanEle = document.createElement("span");
+                        spanEle.appendChild(document.createTextNode($("Tab",this).text()));
+                        aEle.appendChild(spanEle);
+                        liEle.appendChild(aEle);
+                        ulEle.appendChild(liEle);
+                       // arr.push($("Tab",this).text());
+                        
+                    });
+                       
+                    tabsDiv.append(ulEle);
+                    
+                    /*   for(var i=0;i<arr.length;i++){
+                         var tabDiv = document.createElement("div");
+                        tabDiv.setAttribute("id",arr[i]);
+                        tabDiv.innerHTML = arr[i];
+                        tabsDiv.append(tabDiv);
+                    
+                    }
+                   */
+                    for(var i=0;i<count;){
+                         var tabDiv = document.createElement("div");
+                        tabDiv.setAttribute("id","fragment-"+i++);
+                        tabDiv.innerHTML = "fragment"+ i;
+                        tabsDiv.append(tabDiv);
+                    
+                    }
+                     $("#tabs").tabs();
+                    
+                    $( "#tabs" ).tabs({
+                      beforeActivate: function( event, ui ) {
+                           $.ajax({
+                                type:"GET", //default
+                                async:true, //default
+                                cache:false,
+                                url:url,
+                                data:{path:"/"+$("#orgId").val()+"/"+ui.newTab[0].id},
+                                dataType:"xml", //defaults to content-type of response
+                                success:function (data,status){
+                                    var x = "";
+                                    if($(data).find("error").length != 0){
+                                        console.error("Ajax error!");
+                                    }else{
+
+                                      console.log("individual tab data");
+                                      console.log(data);
+                
+                                    }
+                                }
+
+                            });
+                      }
+                    });
+                   
+                }
+            }
+        });
+        }
+	//now what?
+	/*if they enter an orgId (we will get it next class through a search), we need to find:
+		-What different areas of information the organization has (/Application/Tabs?orgId=x)
+		-then, find each area on demand (each will need it's own call)
+			General
+				Path: ...ESD/{orgId}/General
+			Locations
+				Path: ...ESD/{orgId}/Locations
+			Treatment
+				Path: ...ESD/{orgId}/Treatments
+			Training
+				Path: ...ESD/{orgId}/Training
+			Facilities
+				Path: ...ESD/{orgId}/Facilities
+			Equipment
+				Path: ...ESD/{orgId}/Equipment
+			Physicians
+				Path: ...ESD/{orgId}/Physicians
+			People
+				Path: ...ESD/{orgId}/People
+	*/
+</script>
+</head>
+<body>
+ 
+<div class="container" ng-app="myapp" ng-controller="SearchController as searchCtlr">
+  <form id="searchForm" ng-submit="searchCtlr.getResults()">
+    <fieldset class="well the-fieldset">
+    <legend class="the-legend">Search Criteria</legend>
+      <div class="form-group">
+        <label for="orgType">Organization Type</label>
+        <select id="orgType" class="form-control" ng-model="searchCtlr.orgType">
+            <option ng-repeat="option in searchCtlr.orgTypeList" value="{{option.type}}">{{option.type}}</option>
+    </select>
+      </div>
+        
+      <div class="form-group">
+        <label for="orgName">Organization Name</label>
+       <input type="text" id="orgName" ng-model="searchCtlr.orgName" class="form-control" placeholder="*can be partial - 'vol' for 'Volunteer'">
+      </div>
+    
+   
+    <label for="state">State</label>
+         <div class="form-inline">
+    <select id="state" class="form-control" ng-change="searchCtlr.getCities()" ng-model="searchCtlr.stateSelected">
+ <option value="">
+          All States
+        </option>
+        <option value="AK">AK</option>
+        <option value="AL">AL</option>
+        <option value="AR">AR</option>
+        <option value="AZ">AZ</option>
+        <option value="CA">CA</option>
+        <option value="CO">CO</option>
+        <option value="CT">CT</option>
+        <option value="DC">DC</option>
+        <option value="DE">DE</option>
+        <option value="FL">FL</option>
+        <option value="GA">GA</option>
+        <option value="HI">HI</option>
+        <option value="IA">IA</option>
+        <option value="ID">ID</option>
+        <option value="IL">IL</option>
+        <option value="IN">IN</option>
+        <option value="KS">KS</option>
+        <option value="KY">KY</option>
+        <option value="LA">LA</option>
+        <option value="MA">MA</option>
+        <option value="MD">MD</option>
+        <option value="ME">ME</option>
+        <option value="MI">MI</option>
+        <option value="MN">MN</option>
+        <option value="MO">MO</option>
+        <option value="MS">MS</option>
+        <option value="MT">MT</option>
+        <option value="NC">NC</option>
+        <option value="ND">ND</option>
+        <option value="NE">NE</option>
+        <option value="NH">NH</option>
+        <option value="NJ">NJ</option>
+        <option value="NM">NM</option>
+        <option value="NV">NV</option>
+        <option value="NY" selected="selected">NY</option>
+        <option value="OH">OH</option>
+        <option value="OK">OK</option>
+        <option value="OR">OR</option>
+        <option value="PA">PA</option>
+        <option value="RI">RI</option>
+        <option value="SC">SC</option>
+        <option value="SD">SD</option>
+        <option value="TN">TN</option>
+        <option value="TX">TX</option>
+        <option value="UT">UT</option>
+        <option value="VA">VA</option>
+        <option value="VT">VT</option>
+        <option value="WA">WA</option>
+        <option value="WI">WI</option>
+        <option value="WV">WV</option>
+        <option value="WY">WY</option>
+</select>
+        <select id="cities" class="form-control" ng-model="searchCtlr.citySelected">
+            <option ng-repeat="option in searchCtlr.cityList" value="{{option.city}}">{{option.city}}</option>
+    </select>
+        <span id="orgCitySearch" name="orgCitySearch"></span>
+             
+  </div>
+ 
+  <div class="form-group">
+    <label for="country" >Country</label>
+   <input type="text" ng-model="searchCtlr.country" id="country" class="form-control" placeholder="">
+  </div>
+     <div class="form-group">
+    <label for="zipcode">ZIP Code</label>
+   <input type="text" ng-model="searchCtlr.zipcode" id="zipcode" class="form-control" placeholder="">
+  </div>
+    <button type="submit" class="btn btn-primary" >Submit</button>
+    <button type="reset" class="btn btn-default" >Reset</button>  
+    </fieldset>
+</form>
+    
+   <table ng-table="searchCtlr.tableParams" class="table table-condensed table-bordered table-striped">
+      <tr ng-repeat="row in $data">
+        <td data-title="'Type'" filter="{type: 'text'}" sortable="'type'">{{row.type}}</td>
+        <td data-title="'Name'" filter="{Name: 'text'}" sortable="'Name'">{{row.Name}}</td>
+      
+      </tr>
+    </table>
+    
+</div>
+  
+ 
+</body>
+</html>
