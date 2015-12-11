@@ -351,15 +351,21 @@
     <button type="reset" class="btn btn-default" >Reset</button>  
     </fieldset>
 </form>
-    
-   <table ng-table="searchCtlr.tableParams" class="table table-condensed table-bordered table-striped">
+     <uib-accordion close-others="oneAtATime">
+         
+   <table ng-table="searchCtlr.tableParams" show-filter="true" class="table table-condensed table-bordered table-striped">
       <tr ng-repeat="row in $data">
-        <td data-title="'Type'" filter="{type: 'text'}" sortable="'type'">{{row.type}}</td>
-        <td data-title="'Name'" filter="{Name: 'text'}" sortable="'Name'">{{row.Name}}</td>
+        <td data-title="'Type'" filter="{type: 'text'}" sortable="'type'" >{{row.type}}</td>
+        <td data-title="'Name'" filter="{Name: 'text'}" sortable="'Name'" ><a ng-href="https://www.google.co.uk/search?q={{row.name}}" target="_blank"><em>{{row.Name}}</em></td>
+        <td data-title="'City'" filter="{city: 'text'}" sortable="'city'" >{{row.city}}</td>
+        <td data-title="'State'" sortable="'State'" >{{row.State}}</td>
+        <td data-title="'County'" sortable="'CountyName'" >{{row.CountyName}}</td>
+        <td data-title="'Zip'" filter="{zip:'number'}" >{{row.zip}}</td>
       
       </tr>
     </table>
     
+    </uib-accordion>
 </div>
   
  

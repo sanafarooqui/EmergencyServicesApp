@@ -115,24 +115,34 @@
         var x2js = new X2JS();
         var xmlText = response.data;
         var jsonObj = x2js.xml_str2json( xmlText );
-        var data = jsonObj.data.row;
+       
                
         console.log(" searchCtlr.orgTypeList");
-    console.dir(data);
+    console.dir(jsonObj);
                
-               
+               if(typeof(jsonObj.data) !== "undefined"){
+                var data = jsonObj.data.row;
+                   
                searchCtlr.tableParams = new NgTableParams(
                    {page: 1,            // show first page
-                    count: 10,
-                    sorting: { Name: "asc" }
+                    count: 10
                     }, {
                         total: data.length, // length of data
                         getData: function($defer, params) {
-                            $defer.resolve($filter('orderBy')(data, params.orderBy()));
-                            $defer.resolve(data.slice((params.page() - 1) * params.count(), params.page() * params.count()));
+                           
+                          var filteredData = params.filter() ?
+                        $filter('filter')(data, params.filter()) :
+                         data;
+
+                    var orderedData = params.sorting() ?
+                                        $filter('orderBy')(filteredData, params.orderBy()) : filteredData;
+                 
+                   
+                         $defer.resolve(orderedData.slice((params.page() - 1) * params.count(), params.page() * params.count()));    
+                           
                         }});
                
-               
+               }
         }, function errorCallback(response) {
              console.error("Ajax error in SearchController!");
             // called asynchronously if an error occurs
