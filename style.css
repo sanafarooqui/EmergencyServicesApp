@@ -17,3 +17,10 @@ width: 50%;
 .form-inline .form-control {
     width: 25%; 
 }
+
+.general-tab {
+    font-weight:normal;
+    padding-left:0px;
+}
+
+.nav, .pagination, .carousel, .panel-title a { cursor: pointer; }

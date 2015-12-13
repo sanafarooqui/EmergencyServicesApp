@@ -4,16 +4,19 @@
   <title>Emergency Services App</title>
     <link rel="stylesheet" href="themes/blue/style.css">
     <link rel="stylesheet" type="text/css" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css">
-    <link rel="stylesheet" href="http://code.jquery.com/ui/1.11.4/themes/smoothness/jquery-ui.css">
+    
     <link rel="stylesheet" href="style.css">
     
     <script src="http://code.jquery.com/jquery-latest.js" type="text/javascript"></script>
-    <script src="jquery.tablesorter.min.js" type="text/javascript"></script>
-    <script src="http://code.jquery.com/ui/1.11.4/jquery-ui.js"></script>
+    
+    <script src="http://maps.googleapis.com/maps/api/js"></script>
     <script type="text/javascript" src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js"></script>
     <script src="http://ajax.googleapis.com/ajax/libs/angularjs/1.4.5/angular.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/ng-table/0.8.3/ng-table.min.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/ng-table/0.8.3/ng-table.min.js"></script>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/angular-ui-bootstrap/0.14.3/ui-bootstrap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/angular-ui-bootstrap/0.14.3/ui-bootstrap-tpls.min.js"></script>
     
     
    
@@ -23,236 +26,40 @@
 
 <script type="text/javascript">
     //JS library 
+    //googleMapAPI KEY - AIzaSyBQwsQZ1nVk-l1MTcwIDAL3QTHQvMISxbs
     //https://code.google.com/p/x2js/wiki/BasicUsage
     
-    //$(document).ready(function(){
-    //body.onload waits for loading the dom and resources
-    //.ready only waits for DOM to load
-    var url = "http://people.rit.edu/dmgics/754/23/proxy.php";
+   
     $(function(){
       //  getOrgTypes();
     //    getCities("NY");
     });
-    
-    function getCities(state){
-        state = state || "NY";
-        
-        $.ajax({
-            type:"GET", //default
-            async:true, //default
-            cache:false, //default
-            url:url,
-            data:{path:"/Cities?state="+state},
-            dataType:"xml", //defaults to content-type of response
-            success:function (data,status){
-              //  console.log(data);
-                
-                var opts = "";
-                if($(data).find("error").length != 0){
-                //what to do
-                    console.error("Ajax error!");
-                }else if( $(data).find("row").length === 0){
-                    $("#orgCitySearch").html("There are no cities in "+state);
-                }else{
-                    opts += "<select class='form-control' id='town' name='town'>";
-                    opts += "<option value=''>All Cities</option>"
-                    $("row",data).each( function(){
-                        opts+= "<option value='"+$(this).find("city").text()+"'>"+$(this).find("city").text()+"</option>";
-                    });
-                    
-                    opts += "</select>";
-                    $("#orgCitySearch").html(opts);
-                }
-            } 
-        });
-    }
-    
-    function getOrgTypes(callback){
-             
-        $.ajax({
-            type:"GET", //default
-            async:true, //default
-            cache:false,
-            url:url,
-            data:{path:"/OrgTypes"},
-            dataType:"xml", //defaults to content-type of response
-            success:function (data,status){
-                console.log(data);
-                
-                var opts = "";
-                if($(data).find("error").length != 0){
-                //what to do
-                    console.error("Ajax error!");
-                }else{
-                    opts += "<option value=''>All Organization Types</option>"
-                    $("row",data).each( function(){
-                        opts+= "<option value='"+$(this).find("type").text()+"'>"+$(this).find("type").text()+"</option>";
-                    });
-                    
-                    $("#orgType").html(opts);
-                }
-            }
-            
-        });
-    }
-    
-    function showResults(){
-      $.ajax({
-            type:"GET", //default
-            async:true, //default
-            cache:false,
-            url:url,
-            data:{path:"/Organizations?"+$("#searchForm").serialize()},
-            dataType:"xml", //defaults to content-type of response
-            success:function (data,status){
-                
-                var x = "";
-                if($(data).find("error").length != 0){
-                //what to do
-                    console.error("Ajax error!");
-                }else{
-                  
-                    x = "<table id='resultTable' class='tablesorter'>";
-                    x+= "<thead>";
-                    x+= "<tr>";
-                    x+= "<th>ID</th>";
-                    x+= "<th>Type</th>";
-                    x+= "<th>Name</th>";
-                    x+= "<th>City</th>";
-                    x+= "<th>County</th>";
-                    x+= "<th>State</th>";
-                    x+= "<th>Zip</th>";
-                    x+= "</tr>";
-                    x+= "</thead>";
-                    x+= "<tbody>";
-                    
-                    $("row",data).each( function(){
-                        x+= "<tr>";
-                        x+= "<td>"+ $("OrganizationID",      this).text() +"</td>";
-                        x+= "<td>"+ $("type",      this).text() +"</td>";
-                        x+= "<td>"+ $("Name",      this).text() +"</td>";
-                        x+= "<td>"+ $("city",      this).text() +"</td>";
-                        x+= "<td>"+ $("CountyName",this).text() +"</td>";
-                        x+= "<td>"+ $("State",     this).text() +"</td>";
-                        x+= "<td>"+ $("Zip",       this).text() +"</td>";
-                        x+= "</tr>";
+ 
 
-                    });
-                    
-                    x+= "</tbody>";
-                    x+= "</table>";
-                    
-                    $("#tableOutput").html(x);
-                    $("#resultTable").tablesorter();
-                }
-            }
-            
-        });
+function initialize()
+{
+    var myCenter=new google.maps.LatLng(3,8);
+var mapProp = {
+  center:myCenter,
+  zoom:5,
+  mapTypeId:google.maps.MapTypeId.ROADMAP
+  };
+
+var map=new google.maps.Map(document.getElementById("g1"),mapProp);
+
+var marker=new google.maps.Marker({
+  position:myCenter,
+    visible: true
+  });
+
+marker.setMap(map);
+}
+
+google.maps.event.addDomListener(window, 'load', initialize);
     
-    }
-      
-    function getTabs(id){
-        $.ajax({
-            type:"GET", //default
-            async:true, //default
-            cache:false,
-            url:url,
-            data:{path:"/Application/Tabs?orgId="+id},
-            dataType:"xml", //defaults to content-type of response
-            success:function (data,status){
-                if($(data).find("error").length != 0){
-                //what to do
-                 console.error("Ajax error!");
-                }else{
-                    var tabsDiv = $("#tabs");
-                    var ulEle = document.createElement("ul");
-                    var count = 0;
-                    //var arr = new Array();
-                    
-                    $("row",data).each( function(){
-                        var liEle = document.createElement("li");
-                        liEle.setAttribute("id",$("Tab",this).text());
-                        var aEle = document.createElement("a");
-                       aEle.setAttribute("href","#fragment-"+ count++);
-                      
-                        var spanEle = document.createElement("span");
-                        spanEle.appendChild(document.createTextNode($("Tab",this).text()));
-                        aEle.appendChild(spanEle);
-                        liEle.appendChild(aEle);
-                        ulEle.appendChild(liEle);
-                       // arr.push($("Tab",this).text());
-                        
-                    });
-                       
-                    tabsDiv.append(ulEle);
-                    
-                    /*   for(var i=0;i<arr.length;i++){
-                         var tabDiv = document.createElement("div");
-                        tabDiv.setAttribute("id",arr[i]);
-                        tabDiv.innerHTML = arr[i];
-                        tabsDiv.append(tabDiv);
-                    
-                    }
-                   */
-                    for(var i=0;i<count;){
-                         var tabDiv = document.createElement("div");
-                        tabDiv.setAttribute("id","fragment-"+i++);
-                        tabDiv.innerHTML = "fragment"+ i;
-                        tabsDiv.append(tabDiv);
-                    
-                    }
-                     $("#tabs").tabs();
-                    
-                    $( "#tabs" ).tabs({
-                      beforeActivate: function( event, ui ) {
-                           $.ajax({
-                                type:"GET", //default
-                                async:true, //default
-                                cache:false,
-                                url:url,
-                                data:{path:"/"+$("#orgId").val()+"/"+ui.newTab[0].id},
-                                dataType:"xml", //defaults to content-type of response
-                                success:function (data,status){
-                                    var x = "";
-                                    if($(data).find("error").length != 0){
-                                        console.error("Ajax error!");
-                                    }else{
-
-                                      console.log("individual tab data");
-                                      console.log(data);
-                
-                                    }
-                                }
-
-                            });
-                      }
-                    });
-                   
-                }
-            }
-        });
-        }
-	//now what?
-	/*if they enter an orgId (we will get it next class through a search), we need to find:
-		-What different areas of information the organization has (/Application/Tabs?orgId=x)
-		-then, find each area on demand (each will need it's own call)
-			General
-				Path: ...ESD/{orgId}/General
-			Locations
-				Path: ...ESD/{orgId}/Locations
-			Treatment
-				Path: ...ESD/{orgId}/Treatments
-			Training
-				Path: ...ESD/{orgId}/Training
-			Facilities
-				Path: ...ESD/{orgId}/Facilities
-			Equipment
-				Path: ...ESD/{orgId}/Equipment
-			Physicians
-				Path: ...ESD/{orgId}/Physicians
-			People
-				Path: ...ESD/{orgId}/People
-	*/
+  
+    
+    
 </script>
 </head>
 <body>
@@ -345,26 +152,53 @@
   </div>
      <div class="form-group">
     <label for="zipcode">ZIP Code</label>
-   <input type="text" ng-model="searchCtlr.zipcode" id="zipcode" class="form-control" placeholder="">
+   <input type="number" ng-model="searchCtlr.zipcode" id="zipcode" class="form-control" placeholder="">
   </div>
     <button type="submit" class="btn btn-primary" >Submit</button>
     <button type="reset" class="btn btn-default" >Reset</button>  
     </fieldset>
 </form>
      <uib-accordion close-others="oneAtATime">
-         
+    <uib-accordion-group heading="Search Results" is-open="status.isFirstOpen" is-disabled="status.isFirstDisabled">
    <table ng-table="searchCtlr.tableParams" show-filter="true" class="table table-condensed table-bordered table-striped">
       <tr ng-repeat="row in $data">
         <td data-title="'Type'" filter="{type: 'text'}" sortable="'type'" >{{row.type}}</td>
-        <td data-title="'Name'" filter="{Name: 'text'}" sortable="'Name'" ><a ng-href="https://www.google.co.uk/search?q={{row.name}}" target="_blank"><em>{{row.Name}}</em></td>
+          <td data-title="'Name'" filter="{Name: 'text'}" sortable="'Name'" ><a ng-click="searchCtlr.getDetails(row.OrganizationID)"><em>{{row.Name}}</em></a></td>
         <td data-title="'City'" filter="{city: 'text'}" sortable="'city'" >{{row.city}}</td>
         <td data-title="'State'" sortable="'State'" >{{row.State}}</td>
         <td data-title="'County'" sortable="'CountyName'" >{{row.CountyName}}</td>
-        <td data-title="'Zip'" filter="{zip:'number'}" >{{row.zip}}</td>
-      
+        <td data-title="'Zip'" filter="{zip:'number'}" >{{row.zip}}</td>   
       </tr>
     </table>
-    
+        </uib-accordion-group>
+     <uib-accordion-group heading="Details">
+         <div ng-controller="DetailController as detailCtlr">
+            <uib-tabset>
+                <uib-tab ng-repeat="tab in tabs" select="detailCtlr.getTabInfo(tab.title,$index)" active="" heading="{{tab.title}}" >
+                   <div ng-bind-html="tab.content| to_trusted"> 
+<!--                    <div ng-include src="tab.content">-->
+                    </div>
+<!--                    <content-item content="tab.title"></content-item>-->
+                    <div ng-if="tab.location" location-directive></div>
+                     <div ng-if="tab.people" people-directive></div>
+                </uib-tab>
+                <uib-tab heading="exampleTab" >
+                    <div class="container">
+<!--
+            <select id="location" ng-change="detailCtlr.getLocation()" class="form-control" ng-model="detailCtlr.locSelected"><option ng-repeat="option in detailCtlr.typeArr" value="{{option.typeId}}">{{option.type}}</option></select>
+                       <table ng-table="detailCtlr.tableParams" show-filter="true" class="table table-condensed table-bordered table-striped">
+      <tr ng-repeat="row in $data">
+        <td data-title="'Name'" >{{role.fname}} {{row.lName}}</td>
+        <td data-title="'Role'" >{{row.role}}</td>
+      </tr>
+    </table>
+-->
+                    </div>
+                </uib-tab>
+               
+      </uib-tabset>
+         </div>
+     </uib-accordion-group>
     </uib-accordion>
 </div>
   
