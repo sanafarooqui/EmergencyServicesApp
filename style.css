@@ -23,4 +23,9 @@ width: 50%;
     padding-left:0px;
 }
 
+.general-tab1 {
+    font-weight:normal;
+    padding-left:5px;
+}
+
 .nav, .pagination, .carousel, .panel-title a { cursor: pointer; }

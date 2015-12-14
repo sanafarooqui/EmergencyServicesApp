@@ -10,13 +10,17 @@
     <script src="http://code.jquery.com/jquery-latest.js" type="text/javascript"></script>
     
     <script src="http://maps.googleapis.com/maps/api/js"></script>
-    <script type="text/javascript" src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js"></script>
     <script src="http://ajax.googleapis.com/ajax/libs/angularjs/1.4.5/angular.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/ng-table/0.8.3/ng-table.min.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/ng-table/0.8.3/ng-table.min.js"></script>
+ 
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/angular-loading-bar/0.8.0/loading-bar.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/angular-loading-bar/0.8.0/loading-bar.min.js"></script>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/angular-ui-bootstrap/0.14.3/ui-bootstrap.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/angular-ui-bootstrap/0.14.3/ui-bootstrap-tpls.min.js"></script>
+    
     
     <script src="xml2json.min.js"></script>
     <script src="app.js"></script>
@@ -24,6 +28,7 @@
 
 <script type="text/javascript">
     //JS library 
+    //https://github.com/chieffancypants/angular-loading-bar
     //googleMapAPI KEY - AIzaSyBQwsQZ1nVk-l1MTcwIDAL3QTHQvMISxbs
     //https://code.google.com/p/x2js/wiki/BasicUsage
     
@@ -69,7 +74,7 @@
         <label for="orgType">Organization Type</label>
         <select id="orgType" class="form-control" ng-model="searchCtlr.orgType">
             <option ng-repeat="option in searchCtlr.orgTypeList" value="{{option.type}}">{{option.type}}</option>
-    </select>
+        </select>
       </div>
         
       <div class="form-group">
@@ -77,11 +82,10 @@
        <input type="text" id="orgName" ng-model="searchCtlr.orgName" class="form-control" placeholder="*can be partial - 'vol' for 'Volunteer'">
       </div>
     
-   
     <label for="state">State</label>
-         <div class="form-inline">
-    <select id="state" class="form-control" ng-change="searchCtlr.getCities()" ng-model="searchCtlr.stateSelected">
- <option value="">
+        <div class="form-inline">
+            <select id="state" class="form-control" ng-change="searchCtlr.getCities()" ng-model="searchCtlr.stateSelected">
+                <option value="">
           All States
         </option>
         <option value="AK">AK</option>
@@ -135,10 +139,10 @@
         <option value="WI">WI</option>
         <option value="WV">WV</option>
         <option value="WY">WY</option>
-</select>
-        <select id="cities" class="form-control" ng-model="searchCtlr.citySelected">
+            </select>
+            <select id="cities" class="form-control" ng-model="searchCtlr.citySelected">
             <option ng-repeat="option in searchCtlr.cityList" value="{{option.city}}">{{option.city}}</option>
-    </select>
+            </select>
         <span id="orgCitySearch" name="orgCitySearch"></span>
              
   </div>
@@ -155,8 +159,8 @@
     <button type="reset" class="btn btn-default" >Reset</button>  
     </fieldset>
 </form>
-     <uib-accordion close-others="oneAtATime">
-    <uib-accordion-group heading="Search Results" is-open="status.isFirstOpen" is-disabled="status.isFirstDisabled">
+     <uib-accordion close-others="true">
+    <uib-accordion-group heading="Search Results" is-open="status.open">
    <table ng-table="searchCtlr.tableParams" show-filter="true" class="table table-condensed table-bordered table-striped">
       <tr ng-repeat="row in $data">
         <td data-title="'Type'" filter="{type: 'text'}" sortable="'type'" >{{row.type}}</td>
@@ -168,8 +172,8 @@
       </tr>
     </table>
         </uib-accordion-group>
-     <uib-accordion-group heading="Details">
-         <div ng-controller="DetailController as detailCtlr" style="height:300px">
+     <uib-accordion-group heading="Details" is-open="accStatus.open">
+         <div ng-controller="DetailController as detailCtlr" style="height:400px">
             <uib-tabset>
                 <uib-tab ng-repeat="tab in tabs" select="detailCtlr.getTabInfo(tab.title,$index)" active="" heading="{{tab.title}}" >
                    <div ng-bind-html="tab.content| to_trusted">
@@ -178,12 +182,25 @@
                     <div ng-if="tab.location" location-directive></div>
                      <div ng-if="tab.people" people-directive></div>
                     <div ng-if="tab.general" general-directive></div>
+                    <div ng-if="tab.showTable" table-directive></div>
                 </uib-tab>
-                <uib-tab heading="exampleTab" >
-                   
-                  
+                <uib-tab heading="Physicians">
+                
+                    
+            <table ng-table="tableParams" show-filter="true" class="table">
+          <tr>
+            <th ng-repeat="column in columns" ng-show="column.visible"
+               class="text-center sortable">
+               {{column.title}}
+              </th>
+        </tr>
+        <tr ng-repeat="user in $data">
+           <td ng-repeat="column in columns" ng-show="column.visible" sortable="column.field">
+                {{user[column.field]}}
+            </td>
+        </tr>
+    </table>
                 </uib-tab>
-               
       </uib-tabset>
          </div>
      </uib-accordion-group>

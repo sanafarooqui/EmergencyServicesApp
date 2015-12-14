@@ -3,7 +3,7 @@
     //http://stackoverflow.com/questions/19415394/with-ng-bind-html-unsafe-removed-how-do-i-inject-html
  
     /* create angular module */    
-    var app = angular.module('myapp',['ngTable','ui.bootstrap'])
+    var app = angular.module('myapp',['ngTable','ui.bootstrap','angular-loading-bar'])
         .service('sharedService', function () {
             var url = "http://people.rit.edu/dmgics/754/23/proxy.php";
             
@@ -24,7 +24,7 @@
     app.directive('locationDirective', function () {
         
     return {
-       template: '<div class="container"><div class="row"><div class="col-md-6 form-horizontal" style="border:1px solid"><div class="form-inline"><label for="location">Select Location</label><select id="location" ng-change="detailCtlr.getLocation()" class="form-control" ng-model="detailCtlr.locSelected"><option ng-repeat="option in typeArr" value="{{option.typeId}}">{{option.type}}</option></select></div><div class="form-group"><label class="col-sm-2 control-label">Address1:</label><label class="general-tab control-label">{{detailCtlr.locationObj.address1}}</label></div><div class="form-group"><label class="col-sm-2 control-label">Address2:</label><label class="general-tab control-label">{{detailCtlr.locationObj.address2}}</label></div></div><div class="col-md-5" id="gMap" style="border:1px solid;height:300px;width:300px"></div></div</div>'
+       template: '<div class="container"><div class="row"><div class="col-md-6 form-horizontal"><div class="form-inline"><label for="location">Select Location</label><select id="location" ng-change="detailCtlr.getLocation()" class="form-control" ng-model="detailCtlr.locSelected"><option ng-repeat="option in typeArr" value="{{option.typeId}}">{{option.type}}</option></select></div><div class="form-group"><label class="col-sm-2 control-label">Address1:</label><label class="general-tab1 control-label">{{detailCtlr.locationObj.address1}}</label></div><div class="form-group"><label class="col-sm-2 control-label">Address2:</label><label class="general-tab1 control-label">{{detailCtlr.locationObj.address2}}</label></div><div class="form-group"><label class="col-sm-2 control-label">City:</label><label class="general-tab1 control-label">{{detailCtlr.locationObj.city}}</label></div><div class="form-group"><label class="col-sm-2 control-label">County:</label><label class="general-tab1 control-label">{{detailCtlr.locationObj.countyName}}</label></div><div class="form-group"><label class="col-sm-2 control-label">Fax:</label><label class="general-tab1 control-label">{{detailCtlr.locationObj.fax}}</label></div><div class="form-group"><label class="col-sm-2 control-label">Phone:</label><label class="general-tab1 control-label">{{detailCtlr.locationObj.phone}}</label></div><div class="form-group"><label class="col-sm-2 control-label">State:</label><label class="general-tab1 control-label">{{detailCtlr.locationObj.state}}</label></div><div class="form-group"><label class="col-sm-2 control-label">Zip:</label><label class="general-tab1 control-label">{{detailCtlr.locationObj.zip}}</label></div></div><div class="col-md-5" id="gMap" style="height:300px"></div></div</div>'
        
     };
 });
@@ -38,6 +38,11 @@ app.directive('peopleDirective', function () {
     app.directive('generalDirective', function () {
     return {
        template: '<form class="form-horizontal"><div class="form-group"><label class="col-sm-2 control-label">Name:</label><label class="general-tab control-label">{{detailCtlr.generalData.name}}</label></div><div class="form-group"><label class="col-sm-2 control-label">Email:</label><label class="general-tab control-label">{{detailCtlr.generalData.email }}</label></div><div class="form-group"><label class="col-sm-2 control-label">Website:</label><label class="general-tab control-label">{{detailCtlr.generalData.website}}</label></div><div class="form-group"><label class="col-sm-2 control-label">Number of Members:</label><label class="general-tab control-label">{{detailCtlr.generalData.nummembers}}</label></div></form>'
+    };
+});
+    app.directive('tableDirective', function () {
+    return {
+       template: '<table ng-table="tableParams" show-filter="true" class="table table-condensed table-bordered table-striped"><tr><th ng-repeat="column in columns" ng-show="column.visible" class="text-center sortable">{{column.title}}</th></tr><tr ng-repeat="user in $data"><td ng-repeat="column in columns" ng-show="column.visible" sortable="column.field">{{user[column.field]}}</td></tr></table>'
     };
 });
 
@@ -162,12 +167,13 @@ app.directive('peopleDirective', function () {
         var xmlText = response.data;
         var jsonObj = x2js.xml_str2json( xmlText );
        
-               
         console.log(" searchCtlr.orgTypeList");
-    console.dir(jsonObj);
+        console.dir(jsonObj);
                
                if(typeof(jsonObj.data) !== "undefined"){
                 var data = jsonObj.data.row;
+                   
+                $scope.status={open:true};
                    
                searchCtlr.tableParams = new NgTableParams(
                    {page: 1,            // show first page
@@ -180,11 +186,12 @@ app.directive('peopleDirective', function () {
 
                         var orderedData = params.sorting() ? $filter('orderBy')(filteredData, params.orderBy()) : filteredData;
                  
-                   
                          $defer.resolve(orderedData.slice((params.page() - 1) * params.count(), params.page() * params.count()));    
                            
                     }});
                
+               }else{
+                //display error message on accordion
                }
         }, function errorCallback(response) {
              console.error("Ajax error in SearchController!");
@@ -228,6 +235,8 @@ app.directive('peopleDirective', function () {
                if(jsonObj.data !== "" || jsonObj.data.row.length !== 0){
                 var tArr = jsonObj.data.row;
                 $scope.tabs = [];
+                $scope.accStatus={open:true};
+                $scope.status={open:false};
                    
                 //make a json array for tabs
                 for(var i=0;i<tArr.length;i++){
@@ -239,7 +248,7 @@ app.directive('peopleDirective', function () {
                     }else if(tArr[i].Tab === "General"){
                      $scope.tabs.push({title:tArr[i].Tab,content:"",isLoaded:false,active:true,general:true});
                     }else{
-                     $scope.tabs.push({title:tArr[i].Tab,content:"",isLoaded:false,active:true});
+                     $scope.tabs.push({title:tArr[i].Tab,content:"",isLoaded:false,active:true,showTable:true});
                     }
                 }
                 }else{
@@ -280,7 +289,7 @@ app.directive('peopleDirective', function () {
                       //  detailCtlr.displayGeneralData(jsonObj.data,index);
                         detailCtlr.generalData = jsonObj.data;
                         
-                    }else if(tabTitle === "Training" || tabTitle === "Treatment" || tabTitle === "Facilities" || tabTitle === "Physicians"){ // TODO - put all the tabled tabs in one function
+                    }else if(tabTitle === "Training" || tabTitle === "Treatment" || tabTitle === "Facilities" || tabTitle === "Physicians" || tabTitle === "Equipment"){ // TODO - put all the tabled tabs in one function
                         if(tabTitle === "Facilities"){
                             detailCtlr.tableData = jsonObj.data.facility;
                         }else if(tabTitle === "Physicians"){
@@ -289,7 +298,7 @@ app.directive('peopleDirective', function () {
                             detailCtlr.tableData = jsonObj.data[tabTitle.toLowerCase()];
                         }
                         
-                        detailCtlr.displayTableData(detailCtlr.tableData,index);
+                       detailCtlr.displayTableData(detailCtlr.tableData);
                       
                     }else if(tabTitle === "Locations"){
                         detailCtlr.tabData = jsonObj.data.location;
@@ -325,7 +334,7 @@ app.directive('peopleDirective', function () {
              console.log("displayLocationData");
              console.dir(detailCtlr.locSelected);
              detailCtlr.locationObj=detailCtlr.tabData[detailCtlr.locSelected];
-             var myCenter=new google.maps.LatLng(51.508742,-0.120850);
+             var myCenter=new google.maps.LatLng(detailCtlr.locationObj.latitude,detailCtlr.locationObj.longitude);
              var mapProp = {
                 center:myCenter,
                 zoom:5,
@@ -392,38 +401,60 @@ app.directive('peopleDirective', function () {
               detailCtlr.getLocation();
           }
           
-           
-        
-          detailCtlr.displayTableData = function(data,index){
-            var row1 = detailCtlr.tableData[0];  
-            //  var tableHTML = "<table class='table table-striped'><thead><tr><th>Type</th><th>Abbreviation</th>";
-            var tableHTML = "<table class='table table-striped'><thead><tr>";
-                        
-            for(var key in row1) {
-                if(row1.hasOwnProperty(key)) {
-                    tableHTML += "<th>"+key.capitalizeFirstLetter()+"</th>";
-                    // console.log(key + " -> " + data[key]);
-                    }
-            }        
-            tableHTML += "</tr></thead><tbody>";
-                        
-            for(var i=0;i<detailCtlr.tableData.length;i++) {
-                var data = detailCtlr.tableData[i];
-                tableHTML+= "<tr>";
+            detailCtlr.displayTableData = function(tabledata){
+            var data = tabledata;
                             
-                for(var key in data) {
-                    if(data.hasOwnProperty(key)) {
-                        tableHTML+= "<td>"+data[key]+"</td>";
-                        console.log(key + " -> " + data[key]);
+              $scope.columns = [];
+             var d = data[0];
+            for(var key in d) {
+                if(d.hasOwnProperty(key)) {
+                    $scope.columns.push({title:key,field:key,visible:true});
+                                     
                         }
-                }
-                tableHTML += "</tr>";
-                       //    tableHTML+= "<tr><td>"+detailCtlr.tableData[i].type+"</td><td>"+detailCtlr.tableData[i].abbreviation+"</td></tr>";
+                }    
+                    $scope.tableParams = new NgTableParams({
+                    page: 1,          
+                    count: 6
+                    },{
+                    total :data.length,
+                    getData: function($defer, params) {
+                                
+                    //$defer.resolve($filter('orderBy')(data, params.orderBy()));
+                    $defer.resolve(data.slice((params.page() - 1) * params.count(), params.page() * params.count()));    
+                    }
+                });
             }
-            tableHTML += "</tbody>";
-            $scope.tabs[index].content = tableHTML;
-          
-          }
+        
+//          detailCtlr.displayTableData = function(data,index){
+//            var row1 = detailCtlr.tableData[0];  
+//            //  var tableHTML = "<table class='table table-striped'><thead><tr><th>Type</th><th>Abbreviation</th>";
+//            var tableHTML = "<table class='table table-striped'><thead><tr>";
+//                        
+//            for(var key in row1) {
+//                if(row1.hasOwnProperty(key)) {
+//                    tableHTML += "<th>"+key.capitalizeFirstLetter()+"</th>";
+//                    // console.log(key + " -> " + data[key]);
+//                    }
+//            }        
+//            tableHTML += "</tr></thead><tbody>";
+//                        
+//            for(var i=0;i<detailCtlr.tableData.length;i++) {
+//                var data = detailCtlr.tableData[i];
+//                tableHTML+= "<tr>";
+//                            
+//                for(var key in data) {
+//                    if(data.hasOwnProperty(key)) {
+//                        tableHTML+= "<td>"+data[key]+"</td>";
+//                        //console.log(key + " -> " + data[key]);
+//                        }
+//                }
+//                tableHTML += "</tr>";
+//                       //    tableHTML+= "<tr><td>"+detailCtlr.tableData[i].type+"</td><td>"+detailCtlr.tableData[i].abbreviation+"</td></tr>";
+//            }
+//            tableHTML += "</tbody>";
+//            $scope.tabs[index].content = tableHTML;
+//          
+//          }
                           
     });//end of detailController
     
