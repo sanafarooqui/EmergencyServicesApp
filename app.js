@@ -1,7 +1,6 @@
 
 (function(){
     //http://stackoverflow.com/questions/19415394/with-ng-bind-html-unsafe-removed-how-do-i-inject-html
- 
     /* create angular module */    
     var app = angular.module('myapp',['ngTable','ui.bootstrap','angular-loading-bar'])
         .service('sharedService', function () {
@@ -24,14 +23,14 @@
     app.directive('locationDirective', function () {
         
     return {
-       template: '<div class="container"><div class="row"><div class="col-md-6 form-horizontal"><div class="form-inline"><label for="location">Select Location</label><select id="location" ng-change="detailCtlr.getLocation()" class="form-control" ng-model="detailCtlr.locSelected"><option ng-repeat="option in typeArr" value="{{option.typeId}}">{{option.type}}</option></select></div><div class="form-group"><label class="col-sm-2 control-label">Address1:</label><label class="general-tab1 control-label">{{detailCtlr.locationObj.address1}}</label></div><div class="form-group"><label class="col-sm-2 control-label">Address2:</label><label class="general-tab1 control-label">{{detailCtlr.locationObj.address2}}</label></div><div class="form-group"><label class="col-sm-2 control-label">City:</label><label class="general-tab1 control-label">{{detailCtlr.locationObj.city}}</label></div><div class="form-group"><label class="col-sm-2 control-label">County:</label><label class="general-tab1 control-label">{{detailCtlr.locationObj.countyName}}</label></div><div class="form-group"><label class="col-sm-2 control-label">Fax:</label><label class="general-tab1 control-label">{{detailCtlr.locationObj.fax}}</label></div><div class="form-group"><label class="col-sm-2 control-label">Phone:</label><label class="general-tab1 control-label">{{detailCtlr.locationObj.phone}}</label></div><div class="form-group"><label class="col-sm-2 control-label">State:</label><label class="general-tab1 control-label">{{detailCtlr.locationObj.state}}</label></div><div class="form-group"><label class="col-sm-2 control-label">Zip:</label><label class="general-tab1 control-label">{{detailCtlr.locationObj.zip}}</label></div></div><div class="col-md-5" id="gMap" style="height:300px"></div></div</div>'
+       template: '<div class="container"><div class="row"><div class="col-md-6 form-horizontal"><div class="form-inline"><label for="location">Select Location:</label><select id="location" ng-change="detailCtlr.getLocation()" class="form-control" ng-model="detailCtlr.locSelected"><option ng-repeat="option in typeArr" value="{{option.typeId}}">{{option.type}}</option></select></div><div class="form-group"><label class="col-sm-2 control-label">Address1:</label><label class="general-tab1 control-label">{{detailCtlr.locationObj.address1}}</label></div><div class="form-group"><label class="col-sm-2 control-label">Address2:</label><label class="general-tab1 control-label">{{detailCtlr.locationObj.address2}}</label></div><div class="form-group"><label class="col-sm-2 control-label">City:</label><label class="general-tab1 control-label">{{detailCtlr.locationObj.city}}</label></div><div class="form-group"><label class="col-sm-2 control-label">County:</label><label class="general-tab1 control-label">{{detailCtlr.locationObj.countyName}}</label></div><div class="form-group"><label class="col-sm-2 control-label">Fax:</label><label class="general-tab1 control-label">{{detailCtlr.locationObj.fax}}</label></div><div class="form-group"><label class="col-sm-2 control-label">Phone:</label><label class="general-tab1 control-label">{{detailCtlr.locationObj.phone}}</label></div><div class="form-group"><label class="col-sm-2 control-label">State:</label><label class="general-tab1 control-label">{{detailCtlr.locationObj.state}}</label></div><div class="form-group"><label class="col-sm-2 control-label">Zip:</label><label class="general-tab1 control-label">{{detailCtlr.locationObj.zip}}</label></div></div><div class="col-md-5" id="gMap" style="height:300px"></div></div</div>'
        
     };
 });
  
 app.directive('peopleDirective', function () {
     return {
-       template: '<div class="form-inline"><label for="location">Select Location</label><select id="location" ng-change="detailCtlr.getPersonLoc()" class="form-control" ng-model="detailCtlr.personLocSelected"><option ng-repeat="option in typeArr" value="{{option.typeId}}">{{option.type}}</option></select></div><div class="form-group"><table  show-filter="true" ng-table="detailCtlr.tableParams" class="table table-condensed table-bordered table-striped"><tr ng-repeat="row in $data"><td data-title="\'Name\'"filter="{type: \'text\'}" sortable="\'lName\'" >{{row.lName}}</td><td data-title="\'Role\'" >{{row.role}}</td></tr></table></div>'
+       template: '<div class="form-inline"><label for="location">Select Location: </label><select id="location" ng-change="detailCtlr.getPersonLoc()" class="form-control" ng-model="detailCtlr.personLocSelected"><option ng-repeat="option in typeArr" value="{{option.typeId}}">{{option.type}}</option></select></div><div class="form-group"><table  show-filter="true" ng-table="detailCtlr.tableParams" class="table table-condensed table-bordered table-striped"><tr ng-repeat="row in $data"><td data-title="\'Name\'"filter="{type: \'text\'}" sortable="\'lName\'" >{{row.lName}}</td><td data-title="\'Role\'" >{{row.role}}</td></tr></table></div>'
     };
 });
     
@@ -57,6 +56,7 @@ app.directive('peopleDirective', function () {
         searchCtlr.orgTypeList=[];
         searchCtlr.orgType="All Organization Types";
         searchCtlr.cityList = [];
+        $scope.resultHeader = "Search Result";
        
         searchCtlr.stateSelected = "NY";
         
@@ -134,15 +134,9 @@ app.directive('peopleDirective', function () {
         }
         
         
-         searchCtlr.getDetails = function(id){
-            
-            console.log(id);
-             $rootScope.$broadcast('getDetail', id);
-           
-        }
-        
-        
         searchCtlr.getResults = function(){
+             $scope.resultHeader = "Search Result";
+             $scope.status = {open:false};
             //form data
             var type = searchCtlr.orgType === "All Organization Types"?"":searchCtlr.orgType;
             var state = searchCtlr.stateSelected === "All States"?"":searchCtlr.stateSelected;
@@ -157,7 +151,8 @@ app.directive('peopleDirective', function () {
             console.log(searchCtlr.orgType);
             
             
-           $http({
+            
+        $http({
       method: 'GET',
       url: sharedService.getURL(),
       params :{path:"/Organizations?type="+type+"&name="+name+"&state="+state+"&town="+city+"&country="+country+"&zip="+zip},
@@ -169,11 +164,15 @@ app.directive('peopleDirective', function () {
        
         console.log(" searchCtlr.orgTypeList");
         console.dir(jsonObj);
-               
-               if(typeof(jsonObj.data) !== "undefined"){
-                var data = jsonObj.data.row;
-                   
+               var data=[];
+               if(jsonObj === null || typeof(jsonObj.data) === "undefined"){
+                    $scope.resultHeader = "No results found.";
+                    $scope.status={open:false};
+               }else{
+                  data = jsonObj.data.row;
+                    $scope.resultHeader = "Search Result (Found "+data.length+" results)";
                 $scope.status={open:true};
+               }
                    
                searchCtlr.tableParams = new NgTableParams(
                    {page: 1,            // show first page
@@ -187,12 +186,9 @@ app.directive('peopleDirective', function () {
                         var orderedData = params.sorting() ? $filter('orderBy')(filteredData, params.orderBy()) : filteredData;
                  
                          $defer.resolve(orderedData.slice((params.page() - 1) * params.count(), params.page() * params.count()));    
-                           
                     }});
                
-               }else{
-                //display error message on accordion
-               }
+               
         }, function errorCallback(response) {
              console.error("Ajax error in SearchController!");
             // called asynchronously if an error occurs
@@ -201,6 +197,12 @@ app.directive('peopleDirective', function () {
         
         }
         
+         searchCtlr.getDetails = function(id){
+             
+             $rootScope.$broadcast('getDetail', id);
+        }
+        
+        
          searchCtlr.getCities("NY");
     });//end of SearchController
         
@@ -208,9 +210,8 @@ app.directive('peopleDirective', function () {
     
     app.controller('DetailController',function($http,$scope,sharedService,NgTableParams,$compile,$filter) {
         var detailCtlr = this;
-        detailCtlr.$inject = ["NgTableParams"];
-
-        
+        $scope.detailHeader = "Details";
+            
         $scope.$on('getDetail', function(event, data) { 
             detailCtlr.getTabs(data);
             detailCtlr.orgID = data;
@@ -235,28 +236,29 @@ app.directive('peopleDirective', function () {
                if(jsonObj.data !== "" || jsonObj.data.row.length !== 0){
                 var tArr = jsonObj.data.row;
                 $scope.tabs = [];
-                $scope.accStatus={open:true};
-                $scope.status={open:false};
+                $scope.dStatus={open:true};
                    
                 //make a json array for tabs
                 for(var i=0;i<tArr.length;i++){
                      
                     if(tArr[i].Tab === "Locations"){
-                     $scope.tabs.push({title:tArr[i].Tab,content:"",isLoaded:false,active:true,location:true});
+                     $scope.tabs.push({title:tArr[i].Tab,isLoaded:false,active:true,location:true});
                     }else if(tArr[i].Tab === "People"){
-                     $scope.tabs.push({title:tArr[i].Tab,content:"",isLoaded:false,active:true,people:true});
+                     $scope.tabs.push({title:tArr[i].Tab,isLoaded:false,active:true,people:true});
                     }else if(tArr[i].Tab === "General"){
-                     $scope.tabs.push({title:tArr[i].Tab,content:"",isLoaded:false,active:true,general:true});
+                     $scope.tabs.push({title:tArr[i].Tab,isLoaded:false,active:true,general:true});
                     }else{
-                     $scope.tabs.push({title:tArr[i].Tab,content:"",isLoaded:false,active:true,showTable:true});
+                     $scope.tabs.push({title:tArr[i].Tab,isLoaded:false,active:true,showTable:true});
                     }
-                }
+                 }
                 }else{
                 //Display no tabs available 
+                     $scope.detailHeader = "No details available.";
+                     $scope.dStatus = {open:false};
                 }
                
                  console.log(" detailCtlr.tabs");
-                console.dir( $scope.tabs);
+                 console.dir( $scope.tabs);
 
                 }, function errorCallback(response) {
                      console.error("Ajax error in SearchController!");
@@ -282,8 +284,12 @@ app.directive('peopleDirective', function () {
                
                 console.log("tab jsonObj");
                 console.dir( jsonObj);
-                if(typeof(jsonObj.data) !== "undefined" && jsonObj.data !== null){
-                   
+                  
+                if(typeof(jsonObj.data) === "undefined" || jsonObj.data == null || 
+                   (typeof(jsonObj.data.count) !== "undefined" && jsonObj.data.count == "0")){
+                     $scope.tabMessage = "No data available for "+tabTitle+".";
+                   }else{ 
+                    $scope.tabMessage = "";
                     if(tabTitle === "General"){
                         detailCtlr.tabData = jsonObj.data;
                       //  detailCtlr.displayGeneralData(jsonObj.data,index);
@@ -297,32 +303,39 @@ app.directive('peopleDirective', function () {
                         }else{
                             detailCtlr.tableData = jsonObj.data[tabTitle.toLowerCase()];
                         }
-                        
-                       detailCtlr.displayTableData(detailCtlr.tableData);
-                      
+                        if(detailCtlr.tableData.count != 0){
+                         detailCtlr.displayTableData(detailCtlr.tableData);
+                        }else{
+                         $scope.tabMessage = "No data available for "+tabTitle+" tab.";
+                        }
                     }else if(tabTitle === "Locations"){
                         detailCtlr.tabData = jsonObj.data.location;
                         
-                        detailCtlr.displayLocationData(detailCtlr.tabData);
+                         if(detailCtlr.tabData.length>0){
+                         detailCtlr.displayLocationData(detailCtlr.tabData);
                         
                         console.log("document.getElementById(googleMap)");
                         console.dir(document.getElementById("gMap"));
-
+                             
+                        }else{
+                         $scope.tabMessage = "No data available for "+tabTitle+" tab.";
+                        }
+                      
                     }else if(tabTitle === "People"){
                         detailCtlr.tabData = jsonObj.data.site;
-                          console.log(" detailCtlr.tabData");
-                          console.log(detailCtlr.tabData);
+                        if(detailCtlr.tabData.length>0){
+                         console.log(" detailCtlr.tabData");
+                        console.log(detailCtlr.tabData);
                         
-                           detailCtlr.displayPersonData(detailCtlr.tabData);
-                        
-                    }
-                
-                }else{
-                 //TODO = Display message tab data doesnt exist
+                        detailCtlr.displayPersonData(detailCtlr.tabData);
+                             
+                        }else{
+                         $scope.tabMessage = "No data available for "+tabTitle+" tab.";
+                        }
+                       
                 }
-                
             
-                }, function errorCallback(response) {
+                }}, function errorCallback(response) {
                      console.error("Ajax error in SearchController!");
                     // called asynchronously if an error occurs
                     // or server returns response with an error status.
@@ -334,21 +347,25 @@ app.directive('peopleDirective', function () {
              console.log("displayLocationData");
              console.dir(detailCtlr.locSelected);
              detailCtlr.locationObj=detailCtlr.tabData[detailCtlr.locSelected];
-             var myCenter=new google.maps.LatLng(detailCtlr.locationObj.latitude,detailCtlr.locationObj.longitude);
-             var mapProp = {
-                center:myCenter,
-                zoom:5,
-                mapTypeId:google.maps.MapTypeId.ROADMAP
-                };
+             if(detailCtlr.locationObj.latitude == null){
+                document.getElementById("gMap").html("No map available.");
+             }else{
+                 var myCenter=new google.maps.LatLng(detailCtlr.locationObj.latitude,detailCtlr.locationObj.longitude);
+                 var mapProp = {
+                    center:myCenter,
+                    zoom:5,
+                    mapTypeId:google.maps.MapTypeId.ROADMAP
+                    };
 
-            var map=new google.maps.Map(document.getElementById("gMap"),mapProp);
+                var map=new google.maps.Map(document.getElementById("gMap"),mapProp);
 
-            var marker=new google.maps.Marker({
-                position:myCenter,
-                visible: true
-            });
+                var marker=new google.maps.Marker({
+                    position:myCenter,
+                    visible: true
+                });
 
             marker.setMap(map);
+             }
          }
          
           detailCtlr.getPersonLoc = function(){
@@ -424,96 +441,10 @@ app.directive('peopleDirective', function () {
                     }
                 });
             }
-        
-//          detailCtlr.displayTableData = function(data,index){
-//            var row1 = detailCtlr.tableData[0];  
-//            //  var tableHTML = "<table class='table table-striped'><thead><tr><th>Type</th><th>Abbreviation</th>";
-//            var tableHTML = "<table class='table table-striped'><thead><tr>";
-//                        
-//            for(var key in row1) {
-//                if(row1.hasOwnProperty(key)) {
-//                    tableHTML += "<th>"+key.capitalizeFirstLetter()+"</th>";
-//                    // console.log(key + " -> " + data[key]);
-//                    }
-//            }        
-//            tableHTML += "</tr></thead><tbody>";
-//                        
-//            for(var i=0;i<detailCtlr.tableData.length;i++) {
-//                var data = detailCtlr.tableData[i];
-//                tableHTML+= "<tr>";
-//                            
-//                for(var key in data) {
-//                    if(data.hasOwnProperty(key)) {
-//                        tableHTML+= "<td>"+data[key]+"</td>";
-//                        //console.log(key + " -> " + data[key]);
-//                        }
-//                }
-//                tableHTML += "</tr>";
-//                       //    tableHTML+= "<tr><td>"+detailCtlr.tableData[i].type+"</td><td>"+detailCtlr.tableData[i].abbreviation+"</td></tr>";
-//            }
-//            tableHTML += "</tbody>";
-//            $scope.tabs[index].content = tableHTML;
-//          
-//          }
-                          
+                 
     });//end of detailController
     
-  /*  .directive('contentItem', function ($compile) {
-    var locationTemplate = '<div class="container"><div class="row"><div class="col-md-6 form-horizontal" style="border:1px solid"><select id="location" ng-change="detailCtlr.getLocation()" class="form-control" ng-model="detailCtlr.locSelected"><option ng-repeat="option in typeArr" value="{{option.typeId}}">{{option.type}}</option></select> <div class="form-group"><label class="col-sm-2 control-label">Address1:</label><label class="general-tab control-label">{{detailCtlr.locationObj.address1}}</label></div><div class="form-group"><label class="col-sm-2 control-label">Address2:</label><label class="general-tab control-label">{{detailCtlr.locationObj.address2}}</label></div></div><div class="col-md-5" id="gMap" style="border:1px solid;height:300px;width:300px"></div></div></div>';
-    var peopleTemplate = '<div class="container">klfdjsfsjldjs</div>';
-   // var noteTemplate = '<div class="entry-note"><h2>&nbsp;</h2><div class="entry-text"><div class="entry-title">{{content.title}}</div><div class="entry-copy">{{content.data}}</div></div></div>';
-     var template = '';
-    var getTemplate = function(contentType) {
-       
-
-        switch(contentType) {
-            case 'Locations':
-                template = locationTemplate;
-                break;
-            case 'People':
-                template = peopleTemplate;
-                break;
-           
-        }
-
-        return template;
-    }
-
-    var linker = function(scope, element, attrs) {
-        console.log("making templte");
-        console.dir(scope.content);
-        //template = getTemplate(scope.content);
-        //template = getTemplate(attrs.content)(scope);
-     //  element.html(getTemplate(scope.content)).show();
-      // var html = getTemplate(scope.content);
-      //  var e =$compile(html)(scope);
-     //       element.replaceWith(e);
-      //  $compile(element.contents())(scope);
-        scope.template1 = getTemplate(scope.content);
-        // element.replaceWith(getTemplate(scope.content));
-    }
-
-    return {
-     require: 'ngModel',
-       template: function(tElement, tAttrs) {
-           console.log("in template");
-           console.log(tAttrs.content);
-         
-            console.log("making templte");
-      // linker();
-         
-            return getTemplate(tAttrs.content);
-        },
-        restrict: "E",
-        replace:true,
-     //   link: linker,
-        scope: {
-            ngModel:'='
-        }
-    };
-});    
-    */
-    
+ 
   String.prototype.capitalizeFirstLetter = function() {
     return this.charAt(0).toUpperCase() + this.slice(1);
 }

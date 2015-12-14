@@ -31,37 +31,7 @@
     //https://github.com/chieffancypants/angular-loading-bar
     //googleMapAPI KEY - AIzaSyBQwsQZ1nVk-l1MTcwIDAL3QTHQvMISxbs
     //https://code.google.com/p/x2js/wiki/BasicUsage
-    
-   
-    $(function(){
-   
-    });
- 
-
-//function initialize()
-//{
-//    var myCenter=new google.maps.LatLng(3,8);
-//var mapProp = {
-//  center:myCenter,
-//  zoom:5,
-//  mapTypeId:google.maps.MapTypeId.ROADMAP
-//  };
-//
-//var map=new google.maps.Map(document.getElementById("g1"),mapProp);
-//
-//var marker=new google.maps.Marker({
-//  position:myCenter,
-//    visible: true
-//  });
-//
-//marker.setMap(map);
-//}
-//
-//google.maps.event.addDomListener(window, 'load', initialize);
-    
-  
-    
-    
+      
 </script>
 </head>
 <body>
@@ -69,7 +39,7 @@
 <div class="container" ng-app="myapp" ng-controller="SearchController as searchCtlr">
   <form id="searchForm" ng-submit="searchCtlr.getResults()">
     <fieldset class="well the-fieldset">
-    <legend class="the-legend">Search Criteria</legend>
+    <legend class="the-legend panel-title">Search Criteria</legend>
       <div class="form-group">
         <label for="orgType">Organization Type</label>
         <select id="orgType" class="form-control" ng-model="searchCtlr.orgType">
@@ -160,7 +130,7 @@
     </fieldset>
 </form>
      <uib-accordion close-others="true">
-    <uib-accordion-group heading="Search Results" is-open="status.open">
+    <uib-accordion-group heading="{{resultHeader}}" is-open="status.open">
    <table ng-table="searchCtlr.tableParams" show-filter="true" class="table table-condensed table-bordered table-striped">
       <tr ng-repeat="row in $data">
         <td data-title="'Type'" filter="{type: 'text'}" sortable="'type'" >{{row.type}}</td>
@@ -172,38 +142,22 @@
       </tr>
     </table>
         </uib-accordion-group>
-     <uib-accordion-group heading="Details" is-open="accStatus.open">
-         <div ng-controller="DetailController as detailCtlr" style="height:400px">
+         <div ng-controller="DetailController as detailCtlr" style="height:450px;padding-top:10px">
+             <uib-accordion-group heading="{{detailHeader}}" is-open="dStatus.open">
             <uib-tabset>
                 <uib-tab ng-repeat="tab in tabs" select="detailCtlr.getTabInfo(tab.title,$index)" active="" heading="{{tab.title}}" >
-                   <div ng-bind-html="tab.content| to_trusted">
-                    </div>
-<!--                    <content-item content="tab.title"></content-item>-->
+                   <div class="form-group">
+                    <label class="general-tab1">{{tabMessage}}</label>
+                  </div>
                     <div ng-if="tab.location" location-directive></div>
                      <div ng-if="tab.people" people-directive></div>
                     <div ng-if="tab.general" general-directive></div>
                     <div ng-if="tab.showTable" table-directive></div>
                 </uib-tab>
-                <uib-tab heading="Physicians">
-                
-                    
-            <table ng-table="tableParams" show-filter="true" class="table">
-          <tr>
-            <th ng-repeat="column in columns" ng-show="column.visible"
-               class="text-center sortable">
-               {{column.title}}
-              </th>
-        </tr>
-        <tr ng-repeat="user in $data">
-           <td ng-repeat="column in columns" ng-show="column.visible" sortable="column.field">
-                {{user[column.field]}}
-            </td>
-        </tr>
-    </table>
-                </uib-tab>
+               
       </uib-tabset>
-         </div>
      </uib-accordion-group>
+    </div>
     </uib-accordion>
 </div>
   
