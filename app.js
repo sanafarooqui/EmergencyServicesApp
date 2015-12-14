@@ -24,16 +24,20 @@
     app.directive('locationDirective', function () {
         
     return {
-       template: '<div class="container"><div class="row"><div class="col-md-6 form-horizontal" style="border:1px solid"><select id="location" ng-change="detailCtlr.getLocation()" class="form-control" ng-model="detailCtlr.locSelected"><option ng-repeat="option in typeArr" value="{{option.typeId}}">{{option.type}}</option></select> <div class="form-group"><label class="col-sm-2 control-label">Address1:</label><label class="general-tab control-label">{{detailCtlr.locationObj.address1}}</label></div><div class="form-group"><label class="col-sm-2 control-label">Address2:</label><label class="general-tab control-label">{{detailCtlr.locationObj.address2}}</label></div></div><div class="col-md-5" id="gMap" style="border:1px solid;height:300px;width:300px"></div></div</div>'
+       template: '<div class="container"><div class="row"><div class="col-md-6 form-horizontal" style="border:1px solid"><div class="form-inline"><label for="location">Select Location</label><select id="location" ng-change="detailCtlr.getLocation()" class="form-control" ng-model="detailCtlr.locSelected"><option ng-repeat="option in typeArr" value="{{option.typeId}}">{{option.type}}</option></select></div><div class="form-group"><label class="col-sm-2 control-label">Address1:</label><label class="general-tab control-label">{{detailCtlr.locationObj.address1}}</label></div><div class="form-group"><label class="col-sm-2 control-label">Address2:</label><label class="general-tab control-label">{{detailCtlr.locationObj.address2}}</label></div></div><div class="col-md-5" id="gMap" style="border:1px solid;height:300px;width:300px"></div></div</div>'
        
     };
 });
  
 app.directive('peopleDirective', function () {
-        
     return {
-       template: '<div class="container"><div class="row"><div class="col-md-6 form-horizontal" style="border:1px solid"><select id="location" ng-change="detailCtlr.getLocation()" class="form-control" ng-model="detailCtlr.locSelected"><option ng-repeat="option in typeArr" value="{{option.typeId}}">{{option.type}}</option></select> <div class="form-group"><label class="col-sm-2 control-label">Address1:</label><label class="general-tab control-label">{{detailCtlr.locationObj.address1}}</label></div><div class="form-group"><label class="col-sm-2 control-label">Address2:</label><label class="general-tab control-label">{{detailCtlr.locationObj.address2}}</label></div></div><div class="col-md-5" id="gMap" style="border:1px solid;height:300px;width:300px"></div></div</div>'
-       
+       template: '<div class="form-inline"><label for="location">Select Location</label><select id="location" ng-change="detailCtlr.getPersonLoc()" class="form-control" ng-model="detailCtlr.personLocSelected"><option ng-repeat="option in typeArr" value="{{option.typeId}}">{{option.type}}</option></select></div><div class="form-group"><table  show-filter="true" ng-table="detailCtlr.tableParams" class="table table-condensed table-bordered table-striped"><tr ng-repeat="row in $data"><td data-title="\'Name\'"filter="{type: \'text\'}" sortable="\'lName\'" >{{row.lName}}</td><td data-title="\'Role\'" >{{row.role}}</td></tr></table></div>'
+    };
+});
+    
+    app.directive('generalDirective', function () {
+    return {
+       template: '<form class="form-horizontal"><div class="form-group"><label class="col-sm-2 control-label">Name:</label><label class="general-tab control-label">{{detailCtlr.generalData.name}}</label></div><div class="form-group"><label class="col-sm-2 control-label">Email:</label><label class="general-tab control-label">{{detailCtlr.generalData.email }}</label></div><div class="form-group"><label class="col-sm-2 control-label">Website:</label><label class="general-tab control-label">{{detailCtlr.generalData.website}}</label></div><div class="form-group"><label class="col-sm-2 control-label">Number of Members:</label><label class="general-tab control-label">{{detailCtlr.generalData.nummembers}}</label></div></form>'
     };
 });
 
@@ -174,7 +178,7 @@ app.directive('peopleDirective', function () {
                            
                         var filteredData = params.filter() ? $filter('filter')(data, params.filter()):data;
 
-                    var orderedData = params.sorting() ? $filter('orderBy')(filteredData, params.orderBy()) : filteredData;
+                        var orderedData = params.sorting() ? $filter('orderBy')(filteredData, params.orderBy()) : filteredData;
                  
                    
                          $defer.resolve(orderedData.slice((params.page() - 1) * params.count(), params.page() * params.count()));    
@@ -195,8 +199,10 @@ app.directive('peopleDirective', function () {
         
     
     
-    app.controller('DetailController',function($http,$scope,sharedService,NgTableParams,$compile) {
+    app.controller('DetailController',function($http,$scope,sharedService,NgTableParams,$compile,$filter) {
         var detailCtlr = this;
+        detailCtlr.$inject = ["NgTableParams"];
+
         
         $scope.$on('getDetail', function(event, data) { 
             detailCtlr.getTabs(data);
@@ -230,8 +236,10 @@ app.directive('peopleDirective', function () {
                      $scope.tabs.push({title:tArr[i].Tab,content:"",isLoaded:false,active:true,location:true});
                     }else if(tArr[i].Tab === "People"){
                      $scope.tabs.push({title:tArr[i].Tab,content:"",isLoaded:false,active:true,people:true});
+                    }else if(tArr[i].Tab === "General"){
+                     $scope.tabs.push({title:tArr[i].Tab,content:"",isLoaded:false,active:true,general:true});
                     }else{
-                     $scope.tabs.push({title:tArr[i].Tab,content:"",isLoaded:false,active:true,location:false});
+                     $scope.tabs.push({title:tArr[i].Tab,content:"",isLoaded:false,active:true});
                     }
                 }
                 }else{
@@ -265,12 +273,13 @@ app.directive('peopleDirective', function () {
                
                 console.log("tab jsonObj");
                 console.dir( jsonObj);
-                if(typeof(jsonObj.data) !== "undefined" && jsonObj.data !== null && jsonObj.data.count > 0){
+                if(typeof(jsonObj.data) !== "undefined" && jsonObj.data !== null){
                    
                     if(tabTitle === "General"){
                         detailCtlr.tabData = jsonObj.data;
-                        //   detailCtlr.tabs[index].content = "'general.html'";
-                        detailCtlr.displayGeneralData(jsonObj.data,index);
+                      //  detailCtlr.displayGeneralData(jsonObj.data,index);
+                        detailCtlr.generalData = jsonObj.data;
+                        
                     }else if(tabTitle === "Training" || tabTitle === "Treatment" || tabTitle === "Facilities" || tabTitle === "Physicians"){ // TODO - put all the tabled tabs in one function
                         if(tabTitle === "Facilities"){
                             detailCtlr.tableData = jsonObj.data.facility;
@@ -285,49 +294,18 @@ app.directive('peopleDirective', function () {
                     }else if(tabTitle === "Locations"){
                         detailCtlr.tabData = jsonObj.data.location;
                         
-                        detailCtlr.displayLocationData(detailCtlr.tabData,index);
+                        detailCtlr.displayLocationData(detailCtlr.tabData);
                         
-                            console.log("document.getElementById(googleMap)");
+                        console.log("document.getElementById(googleMap)");
                         console.dir(document.getElementById("gMap"));
 
-                         var myCenter=new google.maps.LatLng(51.508742,-0.120850);
-                        var mapProp = {
-                          center:myCenter,
-                          zoom:5,
-                          mapTypeId:google.maps.MapTypeId.ROADMAP
-                          };
-
-                        var map=new google.maps.Map(document.getElementById("googleMap"),mapProp);
-
-                        var marker=new google.maps.Marker({
-                          position:myCenter,
-                            visible: true
-                          });
-
-                    marker.setMap(map);
-                        
                     }else if(tabTitle === "People"){
                         detailCtlr.tabData = jsonObj.data.site;
+                          console.log(" detailCtlr.tabData");
+                          console.log(detailCtlr.tabData);
                         
-                       detailCtlr.displayLocationData(detailCtlr.tabData,index);
+                           detailCtlr.displayPersonData(detailCtlr.tabData);
                         
-                        var data = detailCtlr.locationObj.person;
-                   
-                  detailCtlr.peopleTableParams = new NgTableParams(
-                   {page: 1,            // show first page
-                    count: 10
-                    }, {
-                        total: data.length, // length of data
-                        getData: function($defer, params) {
-                           
-                        var filteredData = params.filter() ? $filter('filter')(data, params.filter()):data;
-
-                    var orderedData = params.sorting() ? $filter('orderBy')(filteredData, params.orderBy()) : filteredData;
-                 
-                   
-                         $defer.resolve(orderedData.slice((params.page() - 1) * params.count(), params.page() * params.count()));    
-                           
-                    }});
                     }
                 
                 }else{
@@ -345,39 +323,76 @@ app.directive('peopleDirective', function () {
         
          detailCtlr.getLocation = function(){
              console.log("displayLocationData");
-          console.dir(detailCtlr.locSelected);
+             console.dir(detailCtlr.locSelected);
              detailCtlr.locationObj=detailCtlr.tabData[detailCtlr.locSelected];
-             
+             var myCenter=new google.maps.LatLng(51.508742,-0.120850);
+             var mapProp = {
+                center:myCenter,
+                zoom:5,
+                mapTypeId:google.maps.MapTypeId.ROADMAP
+                };
+
+            var map=new google.maps.Map(document.getElementById("gMap"),mapProp);
+
+            var marker=new google.maps.Marker({
+                position:myCenter,
+                visible: true
+            });
+
+            marker.setMap(map);
          }
          
-          detailCtlr.displayLocationData = function(data,index){
+          detailCtlr.getPersonLoc = function(){
+            console.log("displayLocationData");
+            console.dir(detailCtlr.personLocSelected);
+            detailCtlr.locationObj=detailCtlr.tabData[detailCtlr.personLocSelected];
+            console.log("locationObj");
+            console.dir(detailCtlr.locationObj);
+                        
+            var data = detailCtlr.locationObj.person;
+            console.dir(data);
+                   
+            detailCtlr.tableParams = new NgTableParams({
+                page: 1,          
+                count: 10
+                },{
+                total :data.length,
+                getData: function($defer, params) {
+
+                $defer.resolve($filter('orderBy')(data, params.orderBy()));
+                }
+            });
+         }
+          
+           detailCtlr.displayPersonData = function(data){
+              console.log("displayPersonData");
               detailCtlr.locationObj={};
                $scope.typeArr =[];
-              //  detailCtlr.typeArr.push({typeId:"default",type:"Select Location Type"});
-               for(var i=0;i<data.length;i++){
-                $scope.typeArr.push({typeId:i,type:data[i].type});
-               }
               
+               for(var i=0;i<data.length;i++){
+                    $scope.typeArr.push({typeId:i,type:data[i]._siteType});
+               }
+              console.log("$scope.typeArr");
+              console.dir($scope.typeArr);
+              detailCtlr.personLocSelected = "0";
+              detailCtlr.getPersonLoc();
+          }
+           
+          detailCtlr.displayLocationData = function(data){
+               console.log("displayLocationData");
+               detailCtlr.locationObj={};
+               $scope.typeArr =[];
+        
+               for(var i=0;i<data.length;i++){
+                    $scope.typeArr.push({typeId:i,type:data[i].type});
+               }
+              console.log("$scope.typeArr");
+              console.dir($scope.typeArr);
               detailCtlr.locSelected = "0";
               detailCtlr.getLocation();
-              
-//              var locationHTML = '<div class="container"><div class="row"><div class="col-md-6 form-horizontal" style="border:1px solid">';
-//              locationHTML += '<select id="location" ng-change="detailCtlr.getLocation()" class="form-control" ng-model="detailCtlr.locSelected"><option ng-repeat="option in detailCtlr.typeArr" value="{{option.typeId}}">{{option.type}}</option></select>';
-//              locationHTML += ' <div class="form-group"><label class="col-sm-2 control-label">Address1:</label><label class="general-tab control-label">{{detailCtlr.locationObj.address1}}</label></div>';
-//              locationHTML += '<div class="form-group"><label class="col-sm-2 control-label">Address2:</label><label class="general-tab control-label">{{detailCtlr.locationObj.address2}}</label></div>';
-//              
-//              
-//              
-//              locationHTML +='</div><div class="col-md-5" id="googleMap" style="border:1px solid;height:300px"></div></div</div>';
-            
-           
-              
-           //  detailCtlr.tabs[index].content = "<div my-shared-scope></div>";
-           //  console.dir(detailCtlr.tabs[index].content);
-             
-
           }
           
+           
         
           detailCtlr.displayTableData = function(data,index){
             var row1 = detailCtlr.tableData[0];  
@@ -411,6 +426,7 @@ app.directive('peopleDirective', function () {
           }
         
          detailCtlr.displayGeneralData = function(data,index){
+             
              
             var mainForm = document.createElement("form");
              mainForm.setAttribute("class","form-horizontal");
@@ -476,7 +492,7 @@ app.directive('peopleDirective', function () {
              mainForm.appendChild(div);
              
              console.log("tab data");
-             console.dir(detailCtlr.tabs[index]);
+             
              $scope.tabs[index].content = mainForm.outerHTML;
               console.dir(detailCtlr.tabs[index].content);
              
