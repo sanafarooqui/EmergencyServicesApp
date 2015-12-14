@@ -29,8 +29,7 @@
     
    
     $(function(){
-      //  getOrgTypes();
-    //    getCities("NY");
+   
     });
  
 
@@ -173,8 +172,7 @@
          <div ng-controller="DetailController as detailCtlr" style="height:300px">
             <uib-tabset>
                 <uib-tab ng-repeat="tab in tabs" select="detailCtlr.getTabInfo(tab.title,$index)" active="" heading="{{tab.title}}" >
-                   <div ng-bind-html="tab.content| to_trusted"> 
-<!--                    <div ng-include src="tab.content">-->
+                   <div ng-bind-html="tab.content| to_trusted">
                     </div>
 <!--                    <content-item content="tab.title"></content-item>-->
                     <div ng-if="tab.location" location-directive></div>
@@ -182,28 +180,8 @@
                     <div ng-if="tab.general" general-directive></div>
                 </uib-tab>
                 <uib-tab heading="exampleTab" >
-                   <form class="form-horizontal">
-                       <div class="form-group">
-                           <label class="col-sm-2 control-label">"Name:"</label>
-                           <label class="general-tab control-label">{{data.name}}</label>
-                       </div>
-                       <div class="form-group">
-                           <label class="col-sm-2 control-label">"Email:"</label>
-                           <label class="general-tab control-label">{{data.email}}</label>
-                       </div>
-                       <div class="form-group">
-                           <label class="col-sm-2 control-label">"Website:"</label>
-                           <label class="general-tab control-label">{{data.website}}</label>
-                       </div>
-                       <div class="form-group">
-                           <label class="col-sm-2 control-label">"Number of Members:"</label>
-                           <label class="general-tab control-label">{{data.nummembers}}</label>
-                       </div>
-                    </form>
-                           
-
-                       
-                    
+                   
+                  
                 </uib-tab>
                
       </uib-tabset>
