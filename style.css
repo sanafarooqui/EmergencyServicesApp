@@ -29,5 +29,8 @@ width: 50%;
     font-weight:normal;
     padding-left:5px;
 }
+.colorChange{
+color: rebeccapurple;
+}
 
 .nav, .pagination, .carousel, .panel-title a { cursor: pointer; }
