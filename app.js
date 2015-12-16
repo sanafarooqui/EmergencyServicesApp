@@ -13,13 +13,6 @@
       };
     });
 
-  /* creating a filter to get the HTML content into the tabs (not using anymore..keeping for future ref.)*/
-//  app.filter('to_trusted', ['$sce', function($sce) {
-//    return function(text) {
-//      return $sce.trustAsHtml(text);
-//    };
-//  }]);
-
 /* Declaring custom directives - these return the HTML templates for the tabs */
     
   app.directive('locationDirective', function() {
@@ -49,7 +42,7 @@
     };
   });
 
-   
+    
   /* The search controller */
   app.controller('SearchController', function($http, NgTableParams, $filter, sharedService, $rootScope, $scope) {
 
@@ -66,7 +59,8 @@
     searchCtlr.stateSelected = "NY";
     //header for the accordion
     $scope.resultHeader = "Search Result";
-      
+
+    
     //push the default value to be selected into the 
     searchCtlr.orgTypeList.push({
       typeId: "default",
@@ -459,12 +453,8 @@
     }
     
   
-    /* Trying out the jquery plugin */
-    //The mouse events are being logged but the CSS class maybe conflicting
-      $("#resultAccordion").changeColor();
-      //The method getting called before the table is rendered
-      
-//      $scope.$on('$viewContentLoaded', function(){
+    /* Trying out the jquery plugin  - The plugin method getting called before the table is displayed */
+    //      $scope.$on('$viewContentLoaded', function(){
 //      $timeout(function () {
 //          console.log("hi");
 //         var elem = angular.element(document.getElementById('tab_table'));
@@ -472,6 +462,8 @@
 //      });
 //    });
     
+    //the mouseenter and mouseout methods called but color not changing
+    //$("resultAccordion").changeColor(); 
     
   }); //end of detailController
 
